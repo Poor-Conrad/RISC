@@ -3,439 +3,617 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Report: AI Sector Intelligence Briefing</title>
+    <title>The Rise of RISC-V: An Interactive Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals with Terracotta and Green Accents -->
-    <!-- Application Structure Plan: The SPA is designed as a top-down narrative dashboard. It starts with a high-level summary of the four key strategic themes, presented as interactive cards. This allows users to immediately grasp the report's core findings. Users can then navigate via a sticky top-bar or by clicking the cards to dive deeper into each thematic section. This structure was chosen over a linear format to facilitate non-linear exploration and improve scannability of the dense report. Each section is self-contained but interconnected, using data visualizations, key player grids, and structured diagrams to break down complex information into digestible, interactive components. The goal is to transform a static report into an explorable intelligence tool. -->
-    <!-- Visualization & Content Choices: The application uses a mix of presentation methods tailored to the information's goal, confirming NO SVG/Mermaid. 1) Labor Market Shift: Goal=Compare, Viz=Grouped Bar Chart (Chart.js), Interaction=Hover, Justification=Direct comparison of opposing trends. 2) Hardware vs Revenue Gap: Goal=Show Change/Gap, Viz=Line Chart (Chart.js), Interaction=Hover, Justification=Clearly illustrates divergence over time. 3) Sovereign AI Investment: Goal=Compare, Viz=Horizontal Bar Chart (Chart.js), Interaction=Hover, Justification=Effective for comparing magnitudes of named entities (UK vs France). 4) Agentic Value Chain: Goal=Organize/Explain, Viz=HTML/Tailwind Diagram, Interaction=Hover tooltips, Justification=Visualizes a process more effectively than text. 5) Data Tables: Goal=Inform, Viz=Styled HTML Table, Interaction=None, Justification=Standard for presenting structured data clearly. -->
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: A top-down, interactive dashboard structure guiding the user from a high-level hero section with key stats, through interactive explorations of the core concepts, ecosystem, market dynamics, and key applications, concluding with strategic recommendations and sources. A sticky navigation bar provides quick access to each thematic section. This structure is chosen to transform the linear report into an engaging, user-directed experience that prioritizes discovery and understanding over passive reading. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Market Forecasts -> Goal: Show Growth -> Viz: Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: More impactful than a table for showing trends.
+        - Report Info: RISC-V Architecture -> Goal: Explain Modularity -> Viz: Clickable Diagram (HTML/CSS) -> Interaction: Click parts to reveal info -> Justification: Makes a core concept tangible.
+        - Report Info: SoC Table -> Goal: Organize Data -> Viz: Filterable Cards (JS) -> Interaction: Search/filter -> Justification: Improves usability over a static table.
+        - Report Info: ISA Comparison -> Goal: Direct Comparison -> Viz: Interactive Columns (HTML/JS) -> Interaction: Highlight attribute on click -> Justification: Focuses user attention.
+        - Report Info: Key Applications -> Goal: Segmented Info -> Viz: Tabbed Interface (JS) -> Interaction: Click tabs -> Justification: Organizes distinct but related content cleanly.
+        - Report Info: Bibliography -> Goal: Cite Sources -> Viz: Categorized Links (HTML/CSS) -> Interaction: Click to open source -> Justification: Provides authority and path for further reading.
+    -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #FDFBF6;
-            color: #3D405B;
-        }
-        .nav-link {
-            transition: color 0.3s, border-bottom-color 0.3s;
-            border-bottom: 2px solid transparent;
-        }
-        .nav-link.active, .nav-link:hover {
-            color: #E07A5F;
-            border-bottom-color: #E07A5F;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 45vh;
-        }
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 300px;
-            }
-        }
-        .gemini-button {
-            background-color: #3D405B;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        .gemini-button:hover {
-            background-color: #E07A5F;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3D405B;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 45vh; }
+        @media (min-width: 768px) { .chart-container { height: 450px; } }
+        .tab-active { border-color: #0d9488; color: #0d9488; background-color: #f0fdfa; }
+        .tab-inactive { border-color: transparent; color: #374151; }
+        .extension-item:hover { background-color: #f3f4f6; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-stone-50 text-gray-800">
 
-    <!-- Header & Navigation -->
-    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
-        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-bold text-[#3D405B]">AI Intelligence Briefing</h1>
-            <nav class="hidden md:flex space-x-6">
-                <a href="#summary" class="nav-link font-medium p-2">Summary</a>
-                <a href="#agentic-shift" class="nav-link font-medium p-2">Agentic Shift</a>
-                <a href="#sovereign-ai" class="nav-link font-medium p-2">Sovereign AI</a>
-                <a href="#physical-layer" class="nav-link font-medium p-2">Physical Layer</a>
-                <a href="#human-element" class="nav-link font-medium p-2">Human Element</a>
-            </nav>
-            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
-            <a href="#summary" class="block py-2 text-center nav-link">Summary</a>
-            <a href="#agentic-shift" class="block py-2 text-center nav-link">Agentic Shift</a>
-            <a href="#sovereign-ai" class="block py-2 text-center nav-link">Sovereign AI</a>
-            <a href="#physical-layer" class="block py-2 text-center nav-link">Physical Layer</a>
-            <a href="#human-element" class="block py-2 text-center nav-link">Human Element</a>
-        </div>
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-700">RISC-V Analysis</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Overview</a>
+                        <a href="#ecosystem" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Ecosystem</a>
+                        <a href="#market" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Market</a>
+                        <a href="#applications" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Applications</a>
+                        <a href="#outlook" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Outlook</a>
+                        <a href="#sources" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Sources</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
     </header>
 
-    <main class="container mx-auto px-6 py-12">
+    <main>
+        <section id="hero" class="bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+                    RISC-V: The Open Standard
+                    <span class="block text-teal-600">Reshaping the Semiconductor Landscape</span>
+                </h2>
+                <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-600">
+                    From an academic project to a global force, RISC-V offers a royalty-free, modular, and extensible alternative to proprietary ISAs, fueling a new wave of innovation in silicon.
+                </p>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-stone-100 p-6 rounded-lg">
+                        <p class="text-4xl font-bold text-teal-700" id="market-growth-kpi">29.6%</p>
+                        <p class="mt-2 text-sm font-medium text-gray-600">Projected Market CAGR (2024-2032)</p>
+                    </div>
+                    <div class="bg-stone-100 p-6 rounded-lg">
+                        <p class="text-4xl font-bold text-teal-700">10B+</p>
+                        <p class="mt-2 text-sm font-medium text-gray-600">Cores Shipped by 2023</p>
+                    </div>
+                    <div class="bg-stone-100 p-6 rounded-lg">
+                        <p class="text-4xl font-bold text-teal-700">4,500+</p>
+                        <p class="mt-2 text-sm font-medium text-gray-600">Members in RISC-V International</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <!-- Executive Summary Section -->
-        <section id="summary" class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">The Week's Strategic Landscape</h2>
-            <p class="text-lg text-gray-600 max-w-4xl mx-auto mb-12">
-                This week, the AI industry moved from promise to practice, defined by four powerful narratives shaping technology, geopolitics, and society. Explore the key themes that are driving the future of artificial intelligence.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <a href="#agentic-shift" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <h3 class="text-2xl font-bold mb-3 text-[#3D405B]">The Agentic Shift</h3>
-                    <p class="text-gray-600">AI graduates from conversational partner to functional teammate, executing complex workflows and reorganizing the labor market.</p>
-                </a>
-                <a href="#sovereign-ai" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <h3 class="text-2xl font-bold mb-3 text-[#3D405B]">Sovereign AI Race</h3>
-                    <p class="text-gray-600">A geopolitical arms race for compute infrastructure escalates, as nations vie for digital sovereignty beyond just models.</p>
-                </a>
-                <a href="#physical-layer" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <h3 class="text-2xl font-bold mb-3 text-[#E07A5F]">Physical Layer Economics</h3>
-                    <p class="text-gray-600">Economic tension builds between massive hardware spending and the high operational cost of AI, fueling a market for efficiency.</p>
-                </a>
-                <a href="#human-element" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <h3 class="text-2xl font-bold mb-3 text-[#81B29A]">The Human Element</h3>
-                    <p class="text-gray-600">Societal and ethical headwinds intensify as unregulated deployments raise concerns over trust, cognitive impact, and copyright.</p>
-                </a>
+        <section id="overview" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h3 class="text-3xl font-bold text-gray-900">An Open Foundation for Innovation</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                        RISC-V is more than just a new set of instructions; it's a new business model for the semiconductor industry based on open collaboration. Its modular design allows for unprecedented flexibility, enabling everything from tiny microcontrollers to powerful AI accelerators. This section breaks down the core architectural concepts.
+                    </p>
+                </div>
+
+                <div class="mt-16 flex flex-col lg:flex-row gap-8">
+                    <div class="lg:w-1/2 bg-white p-8 rounded-lg shadow-md">
+                        <h4 class="text-xl font-bold text-center mb-6">Interactive Architecture Explorer</h4>
+                        <p class="text-center text-gray-600 mb-6">Click on any component to learn more about its function. This illustrates RISC-V's "à la carte" approach to processor design.</p>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                            <div id="base-isa" class="bg-teal-600 text-white p-4 rounded-lg text-center font-bold cursor-pointer hover:bg-teal-700 transition">
+                                Base Integer ISA (RV32I / RV64I)
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 text-center">
+                                <div id="ext-M" class="extension-item p-3 border rounded-lg cursor-pointer transition">M (Multiply)</div>
+                                <div id="ext-A" class="extension-item p-3 border rounded-lg cursor-pointer transition">A (Atomic)</div>
+                                <div id="ext-F" class="extension-item p-3 border rounded-lg cursor-pointer transition">F/D (Float)</div>
+                                <div id="ext-C" class="extension-item p-3 border rounded-lg cursor-pointer transition">C (Compressed)</div>
+                                <div id="ext-V" class="extension-item p-3 border rounded-lg cursor-pointer transition font-bold text-teal-700">V (Vector)</div>
+                                <div id="ext-B" class="extension-item p-3 border rounded-lg cursor-pointer transition">B (Bit Manip)</div>
+                                <div id="ext-K" class="extension-item p-3 border rounded-lg cursor-pointer transition">K (Crypto)</div>
+                                <div id="ext-Custom" class="extension-item col-span-2 md:col-span-1 p-3 border rounded-lg cursor-pointer transition">Custom Ext.</div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="lg:w-1/2 bg-white p-8 rounded-lg shadow-md flex flex-col">
+                        <div id="arch-details-view" class="flex-grow">
+                             <h4 class="text-xl font-bold mb-4">The Philosophy: "Instruction Sets Should Be Free"</h4>
+                             <p class="text-gray-600">RISC-V's core principle is that the Instruction Set Architecture (ISA)—the fundamental interface between hardware and software—should be an open, free standard. This fosters innovation, reduces vendor lock-in, and allows anyone to design, manufacture, and sell RISC-V chips. Flexibility and design freedom, more than just royalty savings, are the primary drivers of its adoption.</p>
+                             <h4 class="text-xl font-bold mt-6 mb-4">Governance & Geopolitics</h4>
+                             <p class="text-gray-600">Governed by the neutral, Swiss-based RISC-V International, the standard is protected from the trade policies of any single nation. This geopolitical neutrality has been a powerful catalyst for global adoption, offering a path to "technological sovereignty" for countries and companies worldwide.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ecosystem" class="py-20 bg-white">
+             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h3 class="text-3xl font-bold text-gray-900">A Maturing Ecosystem (2025)</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                        The RISC-V ecosystem has seen a "Cambrian explosion" of hardware vendors and is now supported by a robust, industry-backed software stack. This section provides an interactive snapshot of the key players and available technologies that make RISC-V a viable commercial platform today.
+                    </p>
+                </div>
+                
+                <div class="mt-12">
+                    <div class="mb-8 border-b border-gray-200">
+                        <nav class="flex justify-center -mb-px space-x-4" aria-label="Tabs">
+                            <button id="tab-hardware" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Hardware Landscape</button>
+                            <button id="tab-software" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Software Stack</button>
+                        </nav>
+                    </div>
+
+                    <div id="content-hardware" class="fade-in">
+                        <div class="mb-12">
+                            <h4 class="text-xl font-bold text-center mb-6">Key Commercial IP, SoC Vendors, and Adopters</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/sifive.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'SiFive'"><p class="font-semibold">SiFive</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/andestech.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'Andes'"><p class="font-semibold">Andes Tech</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/alibabagroup.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'Alibaba'"><p class="font-semibold">Alibaba T-Head</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/espressif.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'Espressif'"><p class="font-semibold">Espressif</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/nvidia.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'NVIDIA'"><p class="font-semibold">NVIDIA</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/intel.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'Intel'"><p class="font-semibold">Intel</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/qualcomm.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'Qualcomm'"><p class="font-semibold">Qualcomm</p></div>
+                                <div class="bg-gray-50 p-4 rounded-lg text-center"><img src="https://logo.clearbit.com/google.com" class="h-10 mx-auto mb-2" onerror="this.parentNode.innerHTML += 'Google'"><p class="font-semibold">Google</p></div>
+                            </div>
+                        </div>
+                        <div>
+                             <h4 class="text-xl font-bold text-center mb-2">Available Development Hardware</h4>
+                             <p class="text-center text-gray-600 mb-6">Explore a selection of commercially available RISC-V SoCs. Use the search to filter the list.</p>
+                             <input type="text" id="soc-search" placeholder="Search by SoC or Application (e.g., JH7110, Linux, IoT)..." class="w-full max-w-lg mx-auto block p-3 border border-gray-300 rounded-lg mb-8">
+                             <div id="soc-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                             </div>
+                        </div>
+                    </div>
+
+                    <div id="content-software" class="hidden fade-in">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="relative p-8 border-l-2 border-teal-500">
+                                <div class="mb-12 relative">
+                                    <div class="absolute -left-[30px] top-1 h-6 w-6 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                                    <h4 class="text-xl font-bold">Toolchain Maturity (GCC & LLVM)</h4>
+                                    <p class="text-gray-600 mt-2">The foundational GCC and LLVM compiler toolchains provide comprehensive, mature support for RISC-V, enabling development for everything from bare-metal devices to full Linux systems. Commercial, safety-certified toolchains from vendors like IAR Systems are also available for critical applications.</p>
+                                </div>
+                                <div class="mb-12 relative">
+                                     <div class="absolute -left-[30px] top-1 h-6 w-6 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                                    <h4 class="text-xl font-bold">Broad OS Support</h4>
+                                    <p class="text-gray-600 mt-2">RISC-V is supported across the OS spectrum. Major Linux distributions like Fedora, Ubuntu, and Debian offer official `riscv64` ports. The embedded space is covered by market-leading RTOSs including FreeRTOS and Zephyr.</p>
+                                </div>
+                                 <div class="relative">
+                                    <div class="absolute -left-[30px] top-1 h-6 w-6 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                                    <h4 class="text-xl font-bold">The RISE Project</h4>
+                                    <p class="text-gray-600 mt-2">The RISC-V Software Ecosystem (RISE) project is an industry-led collaboration by giants like Google, Intel, and NVIDIA. Its goal is to accelerate the development of a robust, performant, and secure open-source software stack, making RISC-V ready for the most demanding commercial markets.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+        <section id="market" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h3 class="text-3xl font-bold text-gray-900">Market Dynamics & Competitive Landscape</h3>
+                     <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                        RISC-V's market trajectory is one of explosive growth, introducing a major third player into the long-standing ISA duopoly. This section visualizes its growth forecasts, compares it directly with ARM and x86, and outlines the key challenges it must overcome for widespread adoption.
+                    </p>
+                </div>
+
+                <div class="mt-16 bg-white p-8 rounded-lg shadow-md">
+                     <h4 class="text-xl font-bold text-center mb-2">RISC-V Market Size Forecast (USD Billions)</h4>
+                     <p class="text-center text-gray-600 mb-8">Data shows a projected compound annual growth rate (CAGR) of nearly 30% through 2032, with significant momentum in automotive and IoT sectors.</p>
+                     <div class="chart-container">
+                        <canvas id="marketChart"></canvas>
+                     </div>
+                </div>
+
+                <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                     <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h4 class="text-xl font-bold text-center mb-6">The Battle of the ISAs</h4>
+                        <p class="text-center text-gray-600 mb-6">RISC-V's open model forces competition to shift from owning an ISA to excelling at its implementation. Click on an attribute to compare.</p>
+                        <div id="isa-comparison" class="space-y-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                         <h4 class="text-xl font-bold text-center mb-6">Challenges to Adoption</h4>
+                         <p class="text-center text-gray-600 mb-6">Despite its momentum, RISC-V faces significant hurdles. Click each challenge to learn about the risks and mitigation strategies.</p>
+                         <div id="challenges-accordion" class="space-y-3">
+                            <!-- Populated by JS -->
+                         </div>
+                    </div>
+                </div>
             </div>
         </section>
         
-        <!-- Gemini Scenario Modeler Section -->
-        <section id="scenario-modeler" class="mb-24 scroll-mt-24 bg-white rounded-xl shadow-lg p-8">
-            <h2 class="text-3xl font-bold mb-3 text-center">✨ Strategic Scenario Modeler</h2>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-6">How would a future event impact the AI landscape? Enter a hypothetical scenario below to generate a forward-looking analysis based on the report's key themes.</p>
-            <div class="max-w-2xl mx-auto">
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="text" id="scenario-input" placeholder="e.g., A major new open-source model is released" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E07A5F] focus:outline-none">
-                    <button id="generate-scenario-btn" class="gemini-button font-bold py-3 px-6 rounded-lg">Generate Analysis</button>
+        <section id="applications" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                 <div class="text-center">
+                    <h3 class="text-3xl font-bold text-gray-900">High-Impact Applications</h3>
+                     <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+                       RISC-V is not just a general-purpose architecture; it is a critical enabler for industries undergoing profound technological shifts. Its value proposition changes based on the market's needs—from cost-efficiency in IoT to deep customization in AI. Explore the three domains where RISC-V is poised to make the biggest impact.
+                    </p>
                 </div>
-                <div id="scenario-output" class="mt-6 hidden">
-                    <div id="scenario-loader" class="flex justify-center items-center py-4">
-                        <div class="loader"></div>
-                        <p class="ml-4 text-gray-600">Generating analysis...</p>
+
+                <div class="mt-12">
+                     <div class="border-b border-gray-200">
+                        <nav id="app-tabs" class="flex justify-center -mb-px space-x-2 md:space-x-8" aria-label="Tabs">
+                            <!-- App tabs populated by JS -->
+                        </nav>
                     </div>
-                    <div id="scenario-result-content" class="bg-gray-50 p-6 rounded-lg"></div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- The Agentic Shift Section -->
-        <section id="agentic-shift" class="mb-24 scroll-mt-24">
-            <h2 class="text-4xl font-bold mb-3 text-center">The Agentic Shift: AI Graduates from Answering to Acting</h2>
-            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section explores the pivotal transition of AI from passive information tools to active, task-completing agents. Discover the new products, the companies leading the charge, and the profound impact this shift is having on the economy and labor market. This is the move from "answer engine" to "action engine."</p>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold mb-4">A Bifurcated Labor Market</h3>
-                    <p class="text-gray-600 mb-6">The rise of agentic AI creates a stark economic reality. While it automates routine tasks, leading to a dramatic drop in entry-level hiring, it simultaneously fuels unprecedented demand for specialized AI talent, creating a widening gap in the workforce.</p>
-                    <div class="chart-container">
-                        <canvas id="laborMarketChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold mb-4">The Agentic Value Chain</h3>
-                    <p class="text-gray-600 mb-6">A new, multi-layered ecosystem is forming. It starts with foundational models understanding the world and builds up to specialized applications delivering direct business value. This diagram illustrates how the pieces connect.</p>
-                    <div class="space-y-4">
-                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-[#3D405B]">
-                            <h4 class="font-bold">1. Foundational World Models</h4>
-                            <p class="text-sm text-gray-600">Provide general understanding of dynamics (e.g., Meta's V-JEPA 2).</p>
-                        </div>
-                        <div class="flex justify-center">↓</div>
-                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-[#81B29A]">
-                            <h4 class="font-bold">2. Specialized Agent Models</h4>
-                            <p class="text-sm text-gray-600">Trained for specific tasks like web browsing (e.g., H Company's Holo-1).</p>
-                        </div>
-                         <div class="flex justify-center">↓</div>
-                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-[#E07A5F]">
-                            <h4 class="font-bold">3. Agentic Platforms</h4>
-                            <p class="text-sm text-gray-600">Provide UI and orchestration (e.g., Google's AI Mode).</p>
-                        </div>
-                         <div class="flex justify-center">↓</div>
-                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-yellow-500">
-                            <h4 class="font-bold">4. Vertical Applications</h4>
-                            <p class="text-sm text-gray-600">Deliver direct business value in specific industries (e.g., Harvey for Law).</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sovereign AI Section -->
-        <section id="sovereign-ai" class="mb-24 scroll-mt-24">
-            <h2 class="text-4xl font-bold mb-3 text-center">Geopolitical Maneuvering: The Global Race for Sovereign AI</h2>
-             <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section details the escalating geopolitical competition for AI dominance, where control over physical compute infrastructure has become the new benchmark for power. We examine the contrasting strategies of the UK and France, the influence of hardware providers like Nvidia, and how AI is being integrated into national security.</p>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                     <h3 class="text-2xl font-bold mb-4">Europe's Compute Arms Race</h3>
-                    <p class="text-gray-600 mb-6">France and the UK are taking different paths to secure their AI futures. France's Mistral is building a sovereign cloud with 18,000 Nvidia GPUs, a direct play for infrastructure control. The UK has pledged £2bn, but faces criticism that it's not enough to overcome its infrastructure deficit.</p>
-                    <div class="chart-container">
-                        <canvas id="sovereignAIChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                     <h3 class="text-2xl font-bold mb-4">Key Funding & Partnerships</h3>
-                    <p class="text-gray-600 mb-6">Strategic investments and partnerships are shaping the competitive landscape. This table highlights significant moves that signal market validation for efficiency tools, embodied AI, and full-stack sovereign platforms.</p>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-gray-100 text-gray-700">
-                                <tr>
-                                    <th class="p-3 font-semibold">Company</th>
-                                    <th class="p-3 font-semibold">Amount/Type</th>
-                                    <th class="p-3 font-semibold">Market</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Multiverse Computing</td><td class="p-3">$215M Series B</td><td class="p-3">AI Model Compression</td></tr>
-                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Wandercraft</td><td class="p-3">$75M Series D</td><td class="p-3">Humanoid Robots</td></tr>
-                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Mistral</td><td class="p-3">$1bn (reported)</td><td class="p-3">Frontier AI Models</td></tr>
-                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Mistral & Nvidia</td><td class="p-3">Partnership</td><td class="p-3">Sovereign Compute</td></tr>
-                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Uber & Wayve</td><td class="p-3">Partnership</td><td class="p-3">Autonomous Driving</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Physical Layer Section -->
-        <section id="physical-layer" class="mb-24 scroll-mt-24">
-            <h2 class="text-4xl font-bold text-[#E07A5F] mb-3 text-center">Physical Layer Economics: The Cost of Intelligence</h2>
-            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section dives into the foundational economics of AI—the silicon, memory, and energy. A widening gap between massive hardware investment and actual revenue is creating systemic risk, while high operational costs are stalling enterprise adoption and creating a vibrant new market for efficiency solutions.</p>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div class="bg-white p-8 rounded-xl shadow-lg order-2 lg:order-1">
-                    <h3 class="text-2xl font-bold mb-4">Key Players in AI Efficiency</h3>
-                    <div class="space-y-4">
-                        <div class="p-4 border rounded-lg"><h4 class="font-bold text-lg">Multiverse Computing</h4><p class="text-gray-600">Raised $215M for its "CompactifAI" tool, which promises to slash model size and inference costs by 50-80%.</p></div>
-                        <div class="p-4 border rounded-lg"><h4 class="font-bold text-lg">Amazon Web Services (AWS)</h4><p class="text-gray-600">Promoting custom Trainium and Inferentia chips to reduce workload costs by up to 50% vs. general-purpose GPUs.</p></div>
-                        <div class="p-4 border rounded-lg"><h4 class="font-bold text-lg">Meta</h4><p class="text-gray-600">Investing directly in geothermal energy projects to secure clean, reliable power for its data centers.</p></div>
-                    </div>
-                </div>
-                 <div class="bg-white p-8 rounded-xl shadow-lg order-1 lg:order-2">
-                     <h3 class="text-2xl font-bold mb-4">AI's $600B Question</h3>
-                    <p class="text-gray-600 mb-6">Analysis from Sequoia Capital reveals a growing chasm between the hundreds of billions spent on AI hardware and the revenue generated. This chart visualizes the speculative gap, a potential source of market volatility.</p>
-                    <div class="chart-container">
-                        <canvas id="investmentGapChart"></canvas>
+                    <div id="app-content-container" class="mt-8">
+                        <!-- App content populated by JS -->
                     </div>
                 </div>
             </div>
         </section>
         
-        <!-- Human Element Section -->
-        <section id="human-element" class="scroll-mt-24">
-            <h2 class="text-4xl font-bold text-[#81B29A] mb-3 text-center">The Human Element: Society, Ethics & Regulation</h2>
-            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section addresses the mounting societal and ethical challenges created by the rapid, often unregulated, deployment of AI. We explore the crises emerging from today's technology, from deceptive AI "therapists" and copyright battles to the potential long-term cognitive impact on human workers.</p>
+        <section id="outlook" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h3 class="text-3xl font-bold text-gray-900">Strategic Outlook & Recommendations</h3>
+                     <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+                       RISC-V represents a structural shift toward open, collaborative hardware development. Its rise necessitates a strategic re-evaluation by all players. The future of computing is not a zero-sum game, but an era of heterogeneous, domain-specific design, and RISC-V is the ideal foundation for this new world.
+                    </p>
+                </div>
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-teal-700">For Chip Designers</h4>
+                        <p class="mt-2 text-gray-600">Embrace implementation excellence. Value is now in superior core design and software co-design, not in owning an ISA. Participate in working groups to influence standards.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-teal-700">For OEMs & Integrators</h4>
+                        <p class="mt-2 text-gray-600">Reclaim roadmap control. Use RISC-V to de-risk supply chains via multi-sourcing. Invest in in-house software teams to unlock the full potential of custom silicon.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-teal-700">For Software Developers</h4>
+                        <p class="mt-2 text-gray-600">Target standard profiles like RVA23 to ensure portability. Focus on performance optimization, especially for the Vector ('V') extension, to deliver competitive software.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-teal-700">For Policymakers</h4>
+                        <p class="mt-2 text-gray-600">View RISC-V as a long-term strategic asset for innovation and technological sovereignty. Support the open ecosystem and avoid regulations that would isolate domestic firms.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+        <section id="sources" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h3 class="text-3xl font-bold text-gray-900">Key Information Sources</h3>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+                        This analysis is built upon the work of industry bodies, research institutions, and technology journalists. Below is a curated selection of the most authoritative and frequently cited sources for those wishing to explore the topic further.
+                    </p>
+                </div>
+                <div class="mt-16 space-y-12">
                     <div>
-                        <h3 class="font-bold text-xl mb-2">The Trust Deficit</h3>
-                        <p class="text-gray-600 mb-4">An FTC complaint targets "illegal" AI therapy bots for falsely claiming to be licensed professionals, highlighting the dangers of deploying immature AI in high-stakes domains without proper oversight.</p>
+                        <h4 class="text-2xl font-semibold text-center text-teal-700 mb-8">Governance & Strategy</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            <div class="bg-stone-50 p-6 rounded-lg shadow-sm">
+                                <h5 class="font-bold">CSIS: Sustaining Standards Leadership</h5>
+                                <p class="mt-2 text-sm text-gray-600">An essential analysis of the geopolitical dimension, the move to Switzerland, and why competition happens at the implementation, not the standard, level.</p>
+                                <a href="https://www.csis.org/analysis/sustaining-standards-leadership-united-states-cannot-disengage-risc-v" target="_blank" class="inline-block mt-4 text-sm font-medium text-teal-600 hover:text-teal-800">Read Report &rarr;</a>
+                            </div>
+                            <div class="bg-stone-50 p-6 rounded-lg shadow-sm">
+                                <h5 class="font-bold">RISC-V International: Official About Page</h5>
+                                <p class="mt-2 text-sm text-gray-600">Official information from the governing body on its mission, the open standard model, and the distinction between the specification and commercial implementations.</p>
+                                <a href="https://riscv.org/about/" target="_blank" class="inline-block mt-4 text-sm font-medium text-teal-600 hover:text-teal-800">Visit Site &rarr;</a>
+                            </div>
+                        </div>
                     </div>
-                    <button class="gemini-button font-bold py-2 px-4 rounded-lg mt-4 w-full solution-button" data-problem="The Trust Deficit" data-context="An FTC complaint targets 'illegal' AI therapy bots for falsely claiming to be licensed professionals, highlighting the dangers of deploying immature AI in high-stakes domains without proper oversight.">✨ Generate Potential Solutions</button>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+
+                    <div>
+                        <h4 class="text-2xl font-semibold text-center text-teal-700 mb-8">Hardware & Software Ecosystem</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            <div class="bg-stone-50 p-6 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Muxup: Commercially Available Silicon</h5>
+                                <p class="mt-2 text-sm text-gray-600">An extensive and detailed catalog of commercially available RISC-V SoCs, providing key technical specifications for chips from major vendors.</p>
+                                <a href="https://muxup.com/2023q1/commercially-available-risc-v-silicon" target="_blank" class="inline-block mt-4 text-sm font-medium text-teal-600 hover:text-teal-800">View Catalog &rarr;</a>
+                            </div>
+                            <div class="bg-stone-50 p-6 rounded-lg shadow-sm">
+                                <h5 class="font-bold">The RISE Project</h5>
+                                <p class="mt-2 text-sm text-gray-600">The official homepage for the industry-led effort to accelerate the development of a robust, commercially-ready open source software stack for RISC-V.</p>
+                                <a href="https://riseproject.dev/" target="_blank" class="inline-block mt-4 text-sm font-medium text-teal-600 hover:text-teal-800">Visit Project Site &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
                      <div>
-                        <h3 class="font-bold text-xl mb-2">The Cognitive Toll</h3>
-                        <p class="text-gray-600 mb-4">A Microsoft and Carnegie Mellon study warns that over-reliance on generative AI can lead to "atrophied" critical thinking skills, leaving human workers unprepared to handle exceptions when automation fails.</p>
+                        <h4 class="text-2xl font-semibold text-center text-teal-700 mb-8">Market & Application Analysis</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            <div class="bg-stone-50 p-6 rounded-lg shadow-sm">
+                                <h5 class="font-bold">EE Times: Automotive Charts New Course</h5>
+                                <p class="mt-2 text-sm text-gray-600">A deep dive into the drivers for RISC-V adoption in the European automotive industry, focusing on the shift to Software-Defined Vehicles.</p>
+                                <a href="https://www.eetimes.com/automotive-industry-charts-new-course-with-risc-v/" target="_blank" class="inline-block mt-4 text-sm font-medium text-teal-600 hover:text-teal-800">Read Article &rarr;</a>
+                            </div>
+                            <div class="bg-stone-50 p-6 rounded-lg shadow-sm">
+                                <h5 class="font-bold">SNS Insider: Market Forecasts</h5>
+                                <p class="mt-2 text-sm text-gray-600">A market research report providing specific forecasts for market size, CAGR, and growth across different applications and end-user segments.</p>
+                                <a href="https://www.globenewswire.com/news-release/2025/06/04/3093651/0/en/RISC-V-Tech-Market-to-Surpass-USD-11-50-Billion-by-2032-at-29-66-CAGR-Research-by-SNS-Insider.html" target="_blank" class="inline-block mt-4 text-sm font-medium text-teal-600 hover:text-teal-800">View Analysis &rarr;</a>
+                            </div>
+                        </div>
                     </div>
-                    <button class="gemini-button font-bold py-2 px-4 rounded-lg mt-4 w-full solution-button" data-problem="The Cognitive Toll" data-context="A Microsoft and Carnegie Mellon study warns that over-reliance on generative AI can lead to 'atrophied' critical thinking skills, leaving human workers unprepared to handle exceptions when automation fails.">✨ Generate Potential Solutions</button>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
-                     <div>
-                        <h3 class="font-bold text-xl mb-2">Copyright & Data Wars</h3>
-                        <p class="text-gray-600 mb-4">Disney and Universal's lawsuit against Midjourney tests the 'fair use' doctrine for AI training. Meanwhile, 'AI slop' degrades the web and Wikipedia editors reject AI summaries, defending human-curated knowledge.</p>
-                    </div>
-                    <button class="gemini-button font-bold py-2 px-4 rounded-lg mt-4 w-full solution-button" data-problem="Copyright & Data Wars" data-context="Major lawsuits are testing the 'fair use' doctrine for AI training data, while 'AI slop' degrades the web and platforms like Wikipedia defend human-curated knowledge.">✨ Generate Potential Solutions</button>
                 </div>
             </div>
         </section>
+
     </main>
     
-    <!-- Modal for Gemini Responses -->
-    <div id="solution-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 relative">
-            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h2 id="modal-title" class="text-2xl font-bold mb-4"></h2>
-            <div id="modal-loader" class="flex justify-center items-center py-8">
-                <div class="loader"></div>
-                <p class="ml-4 text-gray-600">Generating potential solutions...</p>
-            </div>
-            <div id="modal-content" class="text-gray-700 space-y-4"></div>
-        </div>
-    </div>
-
-
-    <footer class="bg-gray-800 text-white mt-24">
-        <div class="container mx-auto px-6 py-8 text-center">
-            <p>AI Sector Intelligence Briefing | Interactive Report</p>
-            <p class="text-sm text-gray-400 mt-2">Data and analysis based on the report for the week of June 14, 2025. Enhanced with Gemini.</p>
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+            <p>Interactive RISC-V Report (2025)</p>
+            <p class="text-sm text-gray-400 mt-1">This application is an interactive visualization of the "RISC-V Future Impact Analysis" report.</p>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
+    document.addEventListener('DOMContentLoaded', () => {
 
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
+        const architectureData = {
+            'base-isa': { title: 'Base Integer ISA (RV32I / RV64I)', description: 'The mandatory foundation of any RISC-V processor. It includes a small, fixed set of simple instructions for integer computation, control flow, and memory access, ensuring a baseline of software compatibility across the entire ecosystem.' },
+            'ext-M': { title: "Extension 'M': Integer Multiplication & Division", description: 'Provides standard instructions for hardware-accelerated integer multiplication and division, which are otherwise slow to perform in software.' },
+            'ext-A': { title: "Extension 'A': Atomic Instructions", description: 'Offers instructions for atomic memory operations (read-modify-write), which are crucial for synchronizing data access between multiple cores in a multicore system without conflicts.' },
+            'ext-F': { title: "Extensions 'F' & 'D': Floating-Point", description: 'Adds single-precision (F) and double-precision (D) floating-point instructions that comply with the IEEE 754 standard, essential for scientific, engineering, and graphics workloads.' },
+            'ext-C': { title: "Extension 'C': Compressed Instructions", description: 'Provides 16-bit versions of common 32-bit instructions. This improves code density, reducing memory footprint and power consumption while improving cache performance.' },
+            'ext-V': { title: "Extension 'V': Vector Operations", description: "A powerful extension for data-parallel processing (SIMD). It allows a single instruction to operate on multiple data elements, drastically accelerating AI/ML, HPC, and graphics workloads." },
+            'ext-B': { title: "Extension 'B': Bit Manipulation", description: 'A collection of instructions for efficient, low-level manipulation of bits and bit-fields, useful in cryptography, graphics, and networking.' },
+            'ext-K': { title: "Extension 'K': Cryptography", description: 'Provides hardware acceleration for common cryptographic algorithms like AES and SHA-2, enabling high-performance, secure communication and data protection.' },
+            'ext-Custom': { title: 'Custom Extensions', description: "A key feature of RISC-V. Designers can add their own proprietary instructions in a reserved opcode space to create Domain-Specific Architectures (DSAs) that accelerate critical workloads, gaining a competitive edge." },
+        };
+
+        const socData = [
+            { name: 'StarFive JH7110', core: '4x RV64GC SiFive U74', app: 'Linux SBC', board: 'VisionFive 2, Star64' },
+            { name: 'T-Head TH1520', core: '4x RV64GC T-Head C910', app: 'High-Perf SBC', board: 'Lichee Pi 4A' },
+            { name: 'Allwinner D1-H', core: '1x RV64GC T-Head C906', app: 'Linux SBC, V-Ext', board: 'Allwinner Nezha, Lichee RV' },
+            { name: 'SiFive HiFive P550', core: 'Quad-Core SiFive P550', app: 'High-Perf Dev', board: 'HiFive Premier, Milk-V Megrez' },
+            { name: 'Espressif ESP32-C3', core: '1x RV32IMC Core', app: 'IoT / Wi-Fi+BT', board: 'ESP32-C3-DevKitM-1' },
+            { name: 'Espressif ESP32-C6', core: '1x HP, 1x LP RV32IMAC', app: 'IoT / Wi-Fi 6', board: 'ESP32-C6-DevKitC-1' },
+            { name: 'WCH CH32V003', core: '1x RV32EC QingKe V2A', app: 'Ultra Low-Cost MCU', board: 'Various eval boards' },
+            { name: 'DeepComputing DC-ROMA', core: '4x Xuantie C910', app: 'Laptop', board: 'ROMA Laptop' },
+        ];
+
+        const isaComparisonData = [
+            { attr: 'Business Model', riscv: 'Open Standard (Royalty-Free)', arm: 'Proprietary IP (Licensing)', x86: 'Proprietary IP (Products)' },
+            { attr: 'ISA Type', riscv: 'RISC', arm: 'RISC', x86: 'CISC (with RISC micro-ops)' },
+            { attr: 'Customization', riscv: 'High (Designed-in)', arm: 'Limited (Proprietary)', x86: 'None (Closed)' },
+            { attr: 'Key Markets', riscv: 'IoT, Auto, AI Accel.', arm: 'Mobile, Embedded, Client', x86: 'PC, Server, HPC' },
+            { attr: 'Ecosystem', riscv: 'Rapidly Maturing', arm: 'Mature & Vast', x86: 'Mature & Vast' },
+        ];
+        
+        const challengesData = {
+            'Fragmentation': 'The freedom to customize could lead to incompatible hardware if not managed. Mitigation: Standard "Profiles" are defined by RISC-V International to ensure software portability within market segments.',
+            'Performance & Verification': 'The ecosystem must prove its designs are compliant and competitive. Mitigation: A new verification ecosystem (e.g., ImperasDV) and sustained R&D are closing the performance gap with incumbents.',
+            'Security & Trust': 'Openness is transparent, but implementations must be secure. Mitigation: Rigorous, independent security verification and architectural features like Physical Memory Protection (PMP) build trust.',
+            'Software Maturity': 'The software stack, while rapidly improving, still lags the decades of investment in ARM/x86. Mitigation: The industry-led RISE Project is accelerating the porting and optimization of the open-source stack.'
+        };
+        
+        const applicationsData = {
+            automotive: {
+                icon: '🚗',
+                title: 'Automotive',
+                subtitle: 'The Road to Software-Defined Vehicles (SDVs)',
+                content: "The shift to SDVs requires a mix of custom computing that RISC-V is uniquely suited to provide. Its scalability allows a single, consistent architecture to be used for everything from real-time controllers to high-performance ADAS computers. This simplifies development, enables software reuse, and gives automakers crucial control over their roadmaps and supply chains.",
+                highlight: "The ecosystem is delivering solutions certified for functional safety (FuSa) standards like ISO 26262 ASIL D, unlocking safety-critical applications.",
+                players: "Infineon, NXP, Renesas, SiFive, Andes, Quintauris JV"
+            },
+            ai: {
+                icon: '🧠',
+                title: 'AI & Data Centers',
+                subtitle: 'Accelerating Next-Generation Workloads',
+                content: "As Moore's Law slows, progress comes from Domain-Specific Architectures (DSAs). RISC-V's extensibility makes it the ideal foundation for custom AI accelerators. Designers can add new instructions to hardware-accelerate critical AI model operations, enabling deep software-hardware co-design.",
+                highlight: "The standard Vector ('V') extension provides a powerful baseline for data-parallel workloads, which is being used by hyperscalers like Google and Meta.",
+                players: "Google/DeepMind, Meta, NVIDIA, SiFive, Tenstorrent"
+            },
+            iot: {
+                icon: '💡',
+                title: 'IoT & Embedded',
+                subtitle: 'The Incumbent Disrupted',
+                content: "This is RISC-V's first and most successful market. The royalty-free model, combined with its modularity for creating ultra-low-power and area-efficient cores, makes it a formidable competitor to incumbents like ARM's Cortex-M series.",
+                highlight: "The architecture's transparency and features like PMP provide a solid foundation for building secure connected devices.",
+                players: "Espressif, GigaDevice, GreenWaves, WCH, Bouffalo Lab"
+            }
+        };
+
+        const renderSoCList = (filter = '') => {
+            const container = document.getElementById('soc-list');
+            container.innerHTML = '';
+            const filteredData = socData.filter(soc => 
+                soc.name.toLowerCase().includes(filter) || 
+                soc.core.toLowerCase().includes(filter) || 
+                soc.app.toLowerCase().includes(filter) ||
+                soc.board.toLowerCase().includes(filter)
+            );
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 col-span-full">No matching hardware found.</p>`;
+                return;
+            }
+
+            filteredData.forEach(soc => {
+                const card = `
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 fade-in">
+                        <h5 class="font-bold text-teal-800">${soc.name}</h5>
+                        <p class="text-sm text-gray-700 mt-1">${soc.core}</p>
+                        <p class="text-sm text-gray-500 mt-2"><b>Application:</b> ${soc.app}</p>
+                        <p class="text-sm text-gray-500"><b>Boards:</b> ${soc.board}</p>
+                    </div>
+                `;
+                container.innerHTML += card;
             });
-            
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('section');
-
-            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.4 };
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        navLinks.forEach(link => {
-                            link.classList.remove('active');
-                            if (link.getAttribute('href').substring(1) === entry.target.id) {
-                                link.classList.add('active');
-                            }
-                        });
-                    }
+        };
+        
+        const renderIsaComparison = () => {
+            const container = document.getElementById('isa-comparison');
+            container.innerHTML = '';
+            isaComparisonData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-4 gap-2 items-center text-sm p-2 rounded-lg transition hover:bg-stone-50 cursor-pointer';
+                row.innerHTML = `
+                    <div class="font-semibold text-gray-600 col-span-4 sm:col-span-1">${item.attr}</div>
+                    <div class="bg-teal-50 text-teal-900 p-2 rounded col-span-4 sm:col-span-1 text-center">${item.riscv}</div>
+                    <div class="bg-gray-100 p-2 rounded col-span-2 sm:col-span-1 text-center">${item.arm}</div>
+                    <div class="bg-gray-100 p-2 rounded col-span-2 sm:col-span-1 text-center">${item.x86}</div>
+                `;
+                row.addEventListener('click', () => {
+                    document.querySelectorAll('#isa-comparison > div').forEach(r => r.classList.remove('bg-teal-100', 'ring-2', 'ring-teal-300'));
+                    row.classList.add('bg-teal-100', 'ring-2', 'ring-teal-300');
                 });
-            }, observerOptions);
-
-            sections.forEach(section => observer.observe(section));
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (!mobileMenu.classList.contains('hidden')) {
-                        mobileMenu.classList.add('hidden');
-                    }
-                });
+                container.appendChild(row);
             });
+        };
+        
+        const renderChallenges = () => {
+             const container = document.getElementById('challenges-accordion');
+             container.innerHTML = '';
+             Object.entries(challengesData).forEach(([title, content], index) => {
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <button class="w-full flex justify-between items-center text-left p-4 bg-stone-100 hover:bg-stone-200 rounded-lg transition focus:outline-none">
+                        <span class="font-semibold">${title}</span>
+                        <span class="transform transition-transform duration-300">&#9662;</span>
+                    </button>
+                    <div class="hidden p-4 bg-white border border-t-0 border-gray-200 rounded-b-lg">
+                        <p>${content}</p>
+                    </div>
+                `;
+                const button = item.querySelector('button');
+                const contentDiv = item.querySelector('div');
+                const icon = button.querySelector('span:last-child');
+                button.addEventListener('click', () => {
+                    const isHidden = contentDiv.classList.toggle('hidden');
+                    icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+                container.appendChild(item);
+             });
+        };
 
-            Chart.defaults.font.family = 'Inter';
-            Chart.defaults.color = '#3D405B';
-            const tooltipPlugin = { tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', titleFont: { size: 16 }, bodyFont: { size: 14 }, padding: 12, cornerRadius: 6, displayColors: false } };
-            
-            new Chart(document.getElementById('laborMarketChart').getContext('2d'), { type: 'bar', data: { labels: ['Entry-Level Tech Roles', 'Roles with "AI" in Title'], datasets: [{ label: '% Change in Hiring (2024-2025)', data: [-73.4, 578], backgroundColor: ['#E07A5F', '#81B29A'], borderColor: ['#D1694E', '#70A188'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { title: { display: true, text: '% Change' } } }, plugins: { legend: { display: false }, title: { display: false }, ...tooltipPlugin, } } });
-            new Chart(document.getElementById('sovereignAIChart').getContext('2d'), { type: 'bar', data: { labels: ['UK AI Action Plan', 'Mistral Compute Platform'], datasets: [{ label: 'Compute Power/Investment', data: [2, 18], backgroundColor: ['#81B29A', '#3D405B'], borderColor: ['#70A188', '#2C2E40'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Value (in £ Billions / Thousands of GPUs)' } } }, plugins: { legend: { display: false }, title: { display: false }, tooltip: { ...tooltipPlugin.tooltip, callbacks: { label: function(context) { return context.dataIndex === 0 ? `£${context.raw} Billion Pledged` : `${context.raw},000 GPUs Deployed`; } } } } } });
-            new Chart(document.getElementById('investmentGapChart').getContext('2d'), { type: 'line', data: { labels: ['2023', '2024', '2025'], datasets: [{ label: 'Hardware Capex', data: [200, 400, 600], borderColor: '#E07A5F', fill: false, tension: 0.1 }, { label: 'AI Application Revenue', data: [50, 75, 100], borderColor: '#81B29A', fill: false, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Amount (in $ Billions)' } } }, plugins: { legend: { position: 'top' }, title: { display: false }, ...tooltipPlugin } } });
+        const renderAppContent = (appName) => {
+            const container = document.getElementById('app-content-container');
+            const data = applicationsData[appName];
+            if (!data) return;
 
-            // Gemini API Integration
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center fade-in">
+                    <div class="lg:col-span-1 text-center">
+                        <div class="text-8xl">${data.icon}</div>
+                        <h4 class="text-2xl font-bold mt-4">${data.title}</h4>
+                        <p class="text-gray-500">${data.subtitle}</p>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <p class="text-lg text-gray-700">${data.content}</p>
+                        <div class="mt-4 p-4 bg-teal-50 border-l-4 border-teal-500 rounded-r-lg">
+                            <p class="text-teal-800">${data.highlight}</p>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-500"><b>Key Players & Adopters:</b> ${data.players}</p>
+                    </div>
+                </div>
+            `;
+        };
 
-            const generateScenarioBtn = document.getElementById('generate-scenario-btn');
-            const scenarioInput = document.getElementById('scenario-input');
-            const scenarioOutput = document.getElementById('scenario-output');
-            const scenarioLoader = document.getElementById('scenario-loader');
-            const scenarioResultContent = document.getElementById('scenario-result-content');
+        const setupTabs = (tabsContainerId, contentPrefix, defaultTab) => {
+            const tabsContainer = document.getElementById(tabsContainerId);
+            tabsContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const tabId = e.target.id;
+                    const contentId = contentPrefix + tabId.split('-')[1];
 
-            generateScenarioBtn.addEventListener('click', async () => {
-                const userInput = scenarioInput.value.trim();
-                if (!userInput) {
-                    alert('Please enter a scenario.');
-                    return;
-                }
-
-                scenarioOutput.style.display = 'block';
-                scenarioLoader.style.display = 'flex';
-                scenarioResultContent.innerHTML = '';
-                
-                const prompt = `You are a strategic AI analyst. Based on the following four key themes in the AI industry (1. Agentic Shift: AI moving from answering to acting, impacting labor. 2. Sovereign AI Race: Geopolitical competition for compute infrastructure. 3. Physical Layer Economics: The high cost of hardware and energy vs. revenue. 4. Human Element: Societal and ethical issues like trust and copyright.), analyze the potential impact of this event: "${userInput}". Provide a brief, one-paragraph summary for each of the four themes, formatted in HTML with <h4> headings for each theme.`;
-
-                try {
-                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                    tabsContainer.querySelectorAll('button').forEach(btn => {
+                        btn.classList.remove('tab-active');
+                        btn.classList.add('tab-inactive');
                     });
-                    const result = await response.json();
+                    e.target.classList.add('tab-active');
+                    e.target.classList.remove('tab-inactive');
                     
-                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        scenarioResultContent.innerHTML = text;
-                    } else {
-                        throw new Error('Unexpected API response structure.');
-                    }
-                } catch (error) {
-                    console.error('Error fetching from Gemini API:', error);
-                    scenarioResultContent.innerHTML = '<p class="text-red-500">Sorry, there was an error generating the analysis. Please try again.</p>';
-                } finally {
-                    scenarioLoader.style.display = 'none';
+                    document.querySelectorAll(`[id^='${contentPrefix}']`).forEach(content => content.classList.add('hidden'));
+                    document.getElementById(contentId).classList.remove('hidden');
+                }
+            });
+             document.getElementById(defaultTab).click();
+        };
+
+        const setupAppTabs = () => {
+            const container = document.getElementById('app-tabs');
+            container.innerHTML = Object.entries(applicationsData).map(([key, value]) => `
+                <button id="app-tab-${key}" data-target="${key}" class="app-tab whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm">${value.icon} ${value.title}</button>
+            `).join('');
+            
+            container.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (button) {
+                    container.querySelectorAll('button').forEach(btn => btn.classList.remove('tab-active'));
+                    button.classList.add('tab-active');
+                    renderAppContent(button.dataset.target);
                 }
             });
 
-            const solutionButtons = document.querySelectorAll('.solution-button');
-            const modal = document.getElementById('solution-modal');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            const modalTitle = document.getElementById('modal-title');
-            const modalLoader = document.getElementById('modal-loader');
-            const modalContent = document.getElementById('modal-content');
+            const firstTab = container.querySelector('button');
+            if (firstTab) {
+                firstTab.classList.add('tab-active');
+                renderAppContent(firstTab.dataset.target);
+            }
+        };
 
-            solutionButtons.forEach(button => {
-                button.addEventListener('click', async () => {
-                    const problem = button.dataset.problem;
-                    const context = button.dataset.context;
+        document.getElementById('soc-search').addEventListener('keyup', (e) => {
+            renderSoCList(e.target.value.toLowerCase());
+        });
 
-                    modal.style.display = 'flex';
-                    modalLoader.style.display = 'flex';
-                    modalContent.innerHTML = '';
-                    modalTitle.textContent = `Potential Solutions for: ${problem}`;
-
-                    const prompt = `You are an AI policy and ethics expert. Given the problem: "${problem}" with the context: "${context}", generate a brief outline of 3-4 potential solutions. The solutions can be regulatory, technological, or educational. For each solution, provide a short, one-sentence description. Format the output in HTML with <h4> for each solution title and <p> for the description.`;
-                    
-                    try {
-                        const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        const result = await response.json();
-                        if (result.candidates && result.candidates[0].content.parts[0].text) {
-                            modalContent.innerHTML = result.candidates[0].content.parts[0].text;
-                        } else {
-                            throw new Error('Unexpected API response structure.');
-                        }
-                    } catch (error) {
-                        console.error('Error fetching from Gemini API:', error);
-                        modalContent.innerHTML = '<p class="text-red-500">Sorry, there was an error generating solutions. Please try again.</p>';
-                    } finally {
-                        modalLoader.style.display = 'none';
-                    }
-                });
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-            
-            modal.addEventListener('click', (e) => {
-                if(e.target === modal) {
-                    modal.style.display = 'none';
+        document.querySelectorAll('.extension-item, #base-isa').forEach(item => {
+            item.addEventListener('click', () => {
+                const data = architectureData[item.id];
+                if(data) {
+                    const detailView = document.getElementById('arch-details-view');
+                    detailView.innerHTML = `
+                        <div class="fade-in">
+                            <h4 class="text-xl font-bold mb-4">${data.title}</h4>
+                            <p class="text-gray-600">${data.description}</p>
+                        </div>
+                    `;
                 }
             });
         });
+        
+        setupTabs('tab-hardware', 'content-', 'tab-hardware');
+        setupAppTabs();
+        renderSoCList();
+        renderIsaComparison();
+        renderChallenges();
+
+        const ctx = document.getElementById('marketChart').getContext('2d');
+        const marketChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['2024', '2027', '2030', '2032'],
+                datasets: [{
+                    label: 'Global Market Size ($B)',
+                    data: [1.44, 2.7, 7.5, 11.50],
+                    backgroundColor: '#0d9488',
+                    borderColor: '#047857',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: { label: (context) => `$${context.parsed.y} Billion` },
+                        backgroundColor: '#1f2937',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 12 },
+                        padding: 10,
+                        cornerRadius: 4,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Market Size (USD Billions)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+    });
     </script>
 </body>
 </html>
