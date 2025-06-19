@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: AI Sector Intelligence Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Terracotta and Green Accents -->
+    <!-- Application Structure Plan: The SPA is designed as a top-down narrative dashboard. It starts with a high-level summary of the four key strategic themes, presented as interactive cards. This allows users to immediately grasp the report's core findings. Users can then navigate via a sticky top-bar or by clicking the cards to dive deeper into each thematic section. This structure was chosen over a linear format to facilitate non-linear exploration and improve scannability of the dense report. Each section is self-contained but interconnected, using data visualizations, key player grids, and structured diagrams to break down complex information into digestible, interactive components. The goal is to transform a static report into an explorable intelligence tool. -->
+    <!-- Visualization & Content Choices: The application uses a mix of presentation methods tailored to the information's goal, confirming NO SVG/Mermaid. 1) Labor Market Shift: Goal=Compare, Viz=Grouped Bar Chart (Chart.js), Interaction=Hover, Justification=Direct comparison of opposing trends. 2) Hardware vs Revenue Gap: Goal=Show Change/Gap, Viz=Line Chart (Chart.js), Interaction=Hover, Justification=Clearly illustrates divergence over time. 3) Sovereign AI Investment: Goal=Compare, Viz=Horizontal Bar Chart (Chart.js), Interaction=Hover, Justification=Effective for comparing magnitudes of named entities (UK vs France). 4) Agentic Value Chain: Goal=Organize/Explain, Viz=HTML/Tailwind Diagram, Interaction=Hover tooltips, Justification=Visualizes a process more effectively than text. 5) Data Tables: Goal=Inform, Viz=Styled HTML Table, Interaction=None, Justification=Standard for presenting structured data clearly. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF6;
+            color: #3D405B;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #E07A5F;
+            border-bottom-color: #E07A5F;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 45vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        .gemini-button {
+            background-color: #3D405B;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .gemini-button:hover {
+            background-color: #E07A5F;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3D405B;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-[#3D405B]">AI Intelligence Briefing</h1>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#summary" class="nav-link font-medium p-2">Summary</a>
+                <a href="#agentic-shift" class="nav-link font-medium p-2">Agentic Shift</a>
+                <a href="#sovereign-ai" class="nav-link font-medium p-2">Sovereign AI</a>
+                <a href="#physical-layer" class="nav-link font-medium p-2">Physical Layer</a>
+                <a href="#human-element" class="nav-link font-medium p-2">Human Element</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#summary" class="block py-2 text-center nav-link">Summary</a>
+            <a href="#agentic-shift" class="block py-2 text-center nav-link">Agentic Shift</a>
+            <a href="#sovereign-ai" class="block py-2 text-center nav-link">Sovereign AI</a>
+            <a href="#physical-layer" class="block py-2 text-center nav-link">Physical Layer</a>
+            <a href="#human-element" class="block py-2 text-center nav-link">Human Element</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Executive Summary Section -->
+        <section id="summary" class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">The Week's Strategic Landscape</h2>
+            <p class="text-lg text-gray-600 max-w-4xl mx-auto mb-12">
+                This week, the AI industry moved from promise to practice, defined by four powerful narratives shaping technology, geopolitics, and society. Explore the key themes that are driving the future of artificial intelligence.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <a href="#agentic-shift" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-3 text-[#3D405B]">The Agentic Shift</h3>
+                    <p class="text-gray-600">AI graduates from conversational partner to functional teammate, executing complex workflows and reorganizing the labor market.</p>
+                </a>
+                <a href="#sovereign-ai" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-3 text-[#3D405B]">Sovereign AI Race</h3>
+                    <p class="text-gray-600">A geopolitical arms race for compute infrastructure escalates, as nations vie for digital sovereignty beyond just models.</p>
+                </a>
+                <a href="#physical-layer" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-3 text-[#E07A5F]">Physical Layer Economics</h3>
+                    <p class="text-gray-600">Economic tension builds between massive hardware spending and the high operational cost of AI, fueling a market for efficiency.</p>
+                </a>
+                <a href="#human-element" class="block p-8 bg-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-3 text-[#81B29A]">The Human Element</h3>
+                    <p class="text-gray-600">Societal and ethical headwinds intensify as unregulated deployments raise concerns over trust, cognitive impact, and copyright.</p>
+                </a>
+            </div>
+        </section>
+        
+        <!-- Gemini Scenario Modeler Section -->
+        <section id="scenario-modeler" class="mb-24 scroll-mt-24 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-3 text-center">✨ Strategic Scenario Modeler</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-6">How would a future event impact the AI landscape? Enter a hypothetical scenario below to generate a forward-looking analysis based on the report's key themes.</p>
+            <div class="max-w-2xl mx-auto">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="text" id="scenario-input" placeholder="e.g., A major new open-source model is released" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E07A5F] focus:outline-none">
+                    <button id="generate-scenario-btn" class="gemini-button font-bold py-3 px-6 rounded-lg">Generate Analysis</button>
+                </div>
+                <div id="scenario-output" class="mt-6 hidden">
+                    <div id="scenario-loader" class="flex justify-center items-center py-4">
+                        <div class="loader"></div>
+                        <p class="ml-4 text-gray-600">Generating analysis...</p>
+                    </div>
+                    <div id="scenario-result-content" class="bg-gray-50 p-6 rounded-lg"></div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- The Agentic Shift Section -->
+        <section id="agentic-shift" class="mb-24 scroll-mt-24">
+            <h2 class="text-4xl font-bold mb-3 text-center">The Agentic Shift: AI Graduates from Answering to Acting</h2>
+            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section explores the pivotal transition of AI from passive information tools to active, task-completing agents. Discover the new products, the companies leading the charge, and the profound impact this shift is having on the economy and labor market. This is the move from "answer engine" to "action engine."</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4">A Bifurcated Labor Market</h3>
+                    <p class="text-gray-600 mb-6">The rise of agentic AI creates a stark economic reality. While it automates routine tasks, leading to a dramatic drop in entry-level hiring, it simultaneously fuels unprecedented demand for specialized AI talent, creating a widening gap in the workforce.</p>
+                    <div class="chart-container">
+                        <canvas id="laborMarketChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4">The Agentic Value Chain</h3>
+                    <p class="text-gray-600 mb-6">A new, multi-layered ecosystem is forming. It starts with foundational models understanding the world and builds up to specialized applications delivering direct business value. This diagram illustrates how the pieces connect.</p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-[#3D405B]">
+                            <h4 class="font-bold">1. Foundational World Models</h4>
+                            <p class="text-sm text-gray-600">Provide general understanding of dynamics (e.g., Meta's V-JEPA 2).</p>
+                        </div>
+                        <div class="flex justify-center">↓</div>
+                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-[#81B29A]">
+                            <h4 class="font-bold">2. Specialized Agent Models</h4>
+                            <p class="text-sm text-gray-600">Trained for specific tasks like web browsing (e.g., H Company's Holo-1).</p>
+                        </div>
+                         <div class="flex justify-center">↓</div>
+                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-[#E07A5F]">
+                            <h4 class="font-bold">3. Agentic Platforms</h4>
+                            <p class="text-sm text-gray-600">Provide UI and orchestration (e.g., Google's AI Mode).</p>
+                        </div>
+                         <div class="flex justify-center">↓</div>
+                        <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-bold">4. Vertical Applications</h4>
+                            <p class="text-sm text-gray-600">Deliver direct business value in specific industries (e.g., Harvey for Law).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sovereign AI Section -->
+        <section id="sovereign-ai" class="mb-24 scroll-mt-24">
+            <h2 class="text-4xl font-bold mb-3 text-center">Geopolitical Maneuvering: The Global Race for Sovereign AI</h2>
+             <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section details the escalating geopolitical competition for AI dominance, where control over physical compute infrastructure has become the new benchmark for power. We examine the contrasting strategies of the UK and France, the influence of hardware providers like Nvidia, and how AI is being integrated into national security.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                     <h3 class="text-2xl font-bold mb-4">Europe's Compute Arms Race</h3>
+                    <p class="text-gray-600 mb-6">France and the UK are taking different paths to secure their AI futures. France's Mistral is building a sovereign cloud with 18,000 Nvidia GPUs, a direct play for infrastructure control. The UK has pledged £2bn, but faces criticism that it's not enough to overcome its infrastructure deficit.</p>
+                    <div class="chart-container">
+                        <canvas id="sovereignAIChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                     <h3 class="text-2xl font-bold mb-4">Key Funding & Partnerships</h3>
+                    <p class="text-gray-600 mb-6">Strategic investments and partnerships are shaping the competitive landscape. This table highlights significant moves that signal market validation for efficiency tools, embodied AI, and full-stack sovereign platforms.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="p-3 font-semibold">Company</th>
+                                    <th class="p-3 font-semibold">Amount/Type</th>
+                                    <th class="p-3 font-semibold">Market</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Multiverse Computing</td><td class="p-3">$215M Series B</td><td class="p-3">AI Model Compression</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Wandercraft</td><td class="p-3">$75M Series D</td><td class="p-3">Humanoid Robots</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Mistral</td><td class="p-3">$1bn (reported)</td><td class="p-3">Frontier AI Models</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Mistral & Nvidia</td><td class="p-3">Partnership</td><td class="p-3">Sovereign Compute</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-3 font-medium">Uber & Wayve</td><td class="p-3">Partnership</td><td class="p-3">Autonomous Driving</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Physical Layer Section -->
+        <section id="physical-layer" class="mb-24 scroll-mt-24">
+            <h2 class="text-4xl font-bold text-[#E07A5F] mb-3 text-center">Physical Layer Economics: The Cost of Intelligence</h2>
+            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section dives into the foundational economics of AI—the silicon, memory, and energy. A widening gap between massive hardware investment and actual revenue is creating systemic risk, while high operational costs are stalling enterprise adoption and creating a vibrant new market for efficiency solutions.</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-8 rounded-xl shadow-lg order-2 lg:order-1">
+                    <h3 class="text-2xl font-bold mb-4">Key Players in AI Efficiency</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 border rounded-lg"><h4 class="font-bold text-lg">Multiverse Computing</h4><p class="text-gray-600">Raised $215M for its "CompactifAI" tool, which promises to slash model size and inference costs by 50-80%.</p></div>
+                        <div class="p-4 border rounded-lg"><h4 class="font-bold text-lg">Amazon Web Services (AWS)</h4><p class="text-gray-600">Promoting custom Trainium and Inferentia chips to reduce workload costs by up to 50% vs. general-purpose GPUs.</p></div>
+                        <div class="p-4 border rounded-lg"><h4 class="font-bold text-lg">Meta</h4><p class="text-gray-600">Investing directly in geothermal energy projects to secure clean, reliable power for its data centers.</p></div>
+                    </div>
+                </div>
+                 <div class="bg-white p-8 rounded-xl shadow-lg order-1 lg:order-2">
+                     <h3 class="text-2xl font-bold mb-4">AI's $600B Question</h3>
+                    <p class="text-gray-600 mb-6">Analysis from Sequoia Capital reveals a growing chasm between the hundreds of billions spent on AI hardware and the revenue generated. This chart visualizes the speculative gap, a potential source of market volatility.</p>
+                    <div class="chart-container">
+                        <canvas id="investmentGapChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Human Element Section -->
+        <section id="human-element" class="scroll-mt-24">
+            <h2 class="text-4xl font-bold text-[#81B29A] mb-3 text-center">The Human Element: Society, Ethics & Regulation</h2>
+            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center mb-12">This section addresses the mounting societal and ethical challenges created by the rapid, often unregulated, deployment of AI. We explore the crises emerging from today's technology, from deceptive AI "therapists" and copyright battles to the potential long-term cognitive impact on human workers.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-xl mb-2">The Trust Deficit</h3>
+                        <p class="text-gray-600 mb-4">An FTC complaint targets "illegal" AI therapy bots for falsely claiming to be licensed professionals, highlighting the dangers of deploying immature AI in high-stakes domains without proper oversight.</p>
+                    </div>
+                    <button class="gemini-button font-bold py-2 px-4 rounded-lg mt-4 w-full solution-button" data-problem="The Trust Deficit" data-context="An FTC complaint targets 'illegal' AI therapy bots for falsely claiming to be licensed professionals, highlighting the dangers of deploying immature AI in high-stakes domains without proper oversight.">✨ Generate Potential Solutions</button>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+                     <div>
+                        <h3 class="font-bold text-xl mb-2">The Cognitive Toll</h3>
+                        <p class="text-gray-600 mb-4">A Microsoft and Carnegie Mellon study warns that over-reliance on generative AI can lead to "atrophied" critical thinking skills, leaving human workers unprepared to handle exceptions when automation fails.</p>
+                    </div>
+                    <button class="gemini-button font-bold py-2 px-4 rounded-lg mt-4 w-full solution-button" data-problem="The Cognitive Toll" data-context="A Microsoft and Carnegie Mellon study warns that over-reliance on generative AI can lead to 'atrophied' critical thinking skills, leaving human workers unprepared to handle exceptions when automation fails.">✨ Generate Potential Solutions</button>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+                     <div>
+                        <h3 class="font-bold text-xl mb-2">Copyright & Data Wars</h3>
+                        <p class="text-gray-600 mb-4">Disney and Universal's lawsuit against Midjourney tests the 'fair use' doctrine for AI training. Meanwhile, 'AI slop' degrades the web and Wikipedia editors reject AI summaries, defending human-curated knowledge.</p>
+                    </div>
+                    <button class="gemini-button font-bold py-2 px-4 rounded-lg mt-4 w-full solution-button" data-problem="Copyright & Data Wars" data-context="Major lawsuits are testing the 'fair use' doctrine for AI training data, while 'AI slop' degrades the web and platforms like Wikipedia defend human-curated knowledge.">✨ Generate Potential Solutions</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Modal for Gemini Responses -->
+    <div id="solution-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 relative">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 id="modal-title" class="text-2xl font-bold mb-4"></h2>
+            <div id="modal-loader" class="flex justify-center items-center py-8">
+                <div class="loader"></div>
+                <p class="ml-4 text-gray-600">Generating potential solutions...</p>
+            </div>
+            <div id="modal-content" class="text-gray-700 space-y-4"></div>
+        </div>
+    </div>
+
+
+    <footer class="bg-gray-800 text-white mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>AI Sector Intelligence Briefing | Interactive Report</p>
+            <p class="text-sm text-gray-400 mt-2">Data and analysis based on the report for the week of June 14, 2025. Enhanced with Gemini.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.4 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#3D405B';
+            const tooltipPlugin = { tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', titleFont: { size: 16 }, bodyFont: { size: 14 }, padding: 12, cornerRadius: 6, displayColors: false } };
+            
+            new Chart(document.getElementById('laborMarketChart').getContext('2d'), { type: 'bar', data: { labels: ['Entry-Level Tech Roles', 'Roles with "AI" in Title'], datasets: [{ label: '% Change in Hiring (2024-2025)', data: [-73.4, 578], backgroundColor: ['#E07A5F', '#81B29A'], borderColor: ['#D1694E', '#70A188'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { title: { display: true, text: '% Change' } } }, plugins: { legend: { display: false }, title: { display: false }, ...tooltipPlugin, } } });
+            new Chart(document.getElementById('sovereignAIChart').getContext('2d'), { type: 'bar', data: { labels: ['UK AI Action Plan', 'Mistral Compute Platform'], datasets: [{ label: 'Compute Power/Investment', data: [2, 18], backgroundColor: ['#81B29A', '#3D405B'], borderColor: ['#70A188', '#2C2E40'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Value (in £ Billions / Thousands of GPUs)' } } }, plugins: { legend: { display: false }, title: { display: false }, tooltip: { ...tooltipPlugin.tooltip, callbacks: { label: function(context) { return context.dataIndex === 0 ? `£${context.raw} Billion Pledged` : `${context.raw},000 GPUs Deployed`; } } } } } });
+            new Chart(document.getElementById('investmentGapChart').getContext('2d'), { type: 'line', data: { labels: ['2023', '2024', '2025'], datasets: [{ label: 'Hardware Capex', data: [200, 400, 600], borderColor: '#E07A5F', fill: false, tension: 0.1 }, { label: 'AI Application Revenue', data: [50, 75, 100], borderColor: '#81B29A', fill: false, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Amount (in $ Billions)' } } }, plugins: { legend: { position: 'top' }, title: { display: false }, ...tooltipPlugin } } });
+
+            // Gemini API Integration
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const generateScenarioBtn = document.getElementById('generate-scenario-btn');
+            const scenarioInput = document.getElementById('scenario-input');
+            const scenarioOutput = document.getElementById('scenario-output');
+            const scenarioLoader = document.getElementById('scenario-loader');
+            const scenarioResultContent = document.getElementById('scenario-result-content');
+
+            generateScenarioBtn.addEventListener('click', async () => {
+                const userInput = scenarioInput.value.trim();
+                if (!userInput) {
+                    alert('Please enter a scenario.');
+                    return;
+                }
+
+                scenarioOutput.style.display = 'block';
+                scenarioLoader.style.display = 'flex';
+                scenarioResultContent.innerHTML = '';
+                
+                const prompt = `You are a strategic AI analyst. Based on the following four key themes in the AI industry (1. Agentic Shift: AI moving from answering to acting, impacting labor. 2. Sovereign AI Race: Geopolitical competition for compute infrastructure. 3. Physical Layer Economics: The high cost of hardware and energy vs. revenue. 4. Human Element: Societal and ethical issues like trust and copyright.), analyze the potential impact of this event: "${userInput}". Provide a brief, one-paragraph summary for each of the four themes, formatted in HTML with <h4> headings for each theme.`;
+
+                try {
+                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        scenarioResultContent.innerHTML = text;
+                    } else {
+                        throw new Error('Unexpected API response structure.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching from Gemini API:', error);
+                    scenarioResultContent.innerHTML = '<p class="text-red-500">Sorry, there was an error generating the analysis. Please try again.</p>';
+                } finally {
+                    scenarioLoader.style.display = 'none';
+                }
+            });
+
+            const solutionButtons = document.querySelectorAll('.solution-button');
+            const modal = document.getElementById('solution-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const modalTitle = document.getElementById('modal-title');
+            const modalLoader = document.getElementById('modal-loader');
+            const modalContent = document.getElementById('modal-content');
+
+            solutionButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const problem = button.dataset.problem;
+                    const context = button.dataset.context;
+
+                    modal.style.display = 'flex';
+                    modalLoader.style.display = 'flex';
+                    modalContent.innerHTML = '';
+                    modalTitle.textContent = `Potential Solutions for: ${problem}`;
+
+                    const prompt = `You are an AI policy and ethics expert. Given the problem: "${problem}" with the context: "${context}", generate a brief outline of 3-4 potential solutions. The solutions can be regulatory, technological, or educational. For each solution, provide a short, one-sentence description. Format the output in HTML with <h4> for each solution title and <p> for the description.`;
+                    
+                    try {
+                        const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+                        if (result.candidates && result.candidates[0].content.parts[0].text) {
+                            modalContent.innerHTML = result.candidates[0].content.parts[0].text;
+                        } else {
+                            throw new Error('Unexpected API response structure.');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching from Gemini API:', error);
+                        modalContent.innerHTML = '<p class="text-red-500">Sorry, there was an error generating solutions. Please try again.</p>';
+                    } finally {
+                        modalLoader.style.display = 'none';
+                    }
+                });
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
